@@ -28,6 +28,10 @@ public class Device {
     @JsonIgnoreProperties("connectedDevices")
     private List<Device> connectedDevices;
 
+    public Device() {
+        //default constructor (needed for testing so declared )
+    }
+
     public Device(Long id, String name, String ipAddress, String deviceType, String location, String status) {
         this.id = id;
         this.name = name;
