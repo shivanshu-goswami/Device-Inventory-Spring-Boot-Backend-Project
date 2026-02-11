@@ -3,8 +3,11 @@ package com.shivanshu.inventory.device_inventory.service;
 import com.shivanshu.inventory.device_inventory.exception.DeviceNotFoundException;
 import com.shivanshu.inventory.device_inventory.model.Device;
 import com.shivanshu.inventory.device_inventory.repository.DeviceRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 @Service
@@ -13,12 +16,15 @@ public class DeviceService {
     public DeviceService(DeviceRepository deviceRepository) {
         this.deviceRepository = deviceRepository;
     }
+
     public Device saveDevice(Device device) {
         return deviceRepository.save(device);
     }
+
     public List<Device> getAllDevices() {
         return deviceRepository.findAll();
     }
+
     public Device getDeviceById(Long id) {
         //this is optional
         Optional<Device> device= deviceRepository.findById(id);
@@ -45,6 +51,7 @@ public class DeviceService {
     public void deleteDevice(Long id) {
        Device device = deviceRepository.findById(id).
                orElseThrow(()->new DeviceNotFoundException("Device not found with id : "+id));
+       deviceRepository.detachDeleteById(device.getId());
 
     }
 
@@ -54,5 +61,28 @@ public class DeviceService {
             throw new DeviceNotFoundException("no device found for location : "+location);
         }
         return devices;
+    }
+
+    public Device connectDevices(Long id1, Long id2){
+        Device d1=deviceRepository.findById(id1).orElseThrow(()->new DeviceNotFoundException("Device not found with id : "+id1));
+        Device d2=deviceRepository.findById(id2).orElseThrow(()->new DeviceNotFoundException("Device not found with id : "+id2));
+        if(d1.getConnectedDevices()==null){
+            d1.setConnectedDevices(new ArrayList<>());
+        }
+        d1.getConnectedDevices().add(d2);
+        return deviceRepository.save(d1);
+    }
+
+    public Device disconnectDevices(Long id1, Long id2) {
+        Device d1= deviceRepository.findById(id1).orElseThrow(()->new DeviceNotFoundException("Device not found with id : "+id1));
+        Device d2=deviceRepository.findById(id2).orElseThrow(()->new DeviceNotFoundException("Device not found with id : "+id2));
+        if(d1.getConnectedDevices()!=null){
+            d1.getConnectedDevices().removeIf(d->d.getId().equals(id2));
+        }
+        return deviceRepository.save(d1);
+    }
+
+    public Page<Device> getDevices(Pageable pageable) {
+        return deviceRepository.findAll(pageable);
     }
 }

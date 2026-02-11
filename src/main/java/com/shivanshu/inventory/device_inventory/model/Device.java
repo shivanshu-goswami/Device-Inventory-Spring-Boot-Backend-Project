@@ -1,9 +1,13 @@
 package com.shivanshu.inventory.device_inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Relationship;
+
+import java.util.List;
 
 //this 'device' is the label which we have mentioned
 @Node("Device")
@@ -19,6 +23,10 @@ public class Device {
     private String deviceType;
     private String location;
     private String status;
+
+    @Relationship(type="CONNECTED_TO")
+    @JsonIgnoreProperties("connectedDevices")
+    private List<Device> connectedDevices;
 
     public Device(Long id, String name, String ipAddress, String deviceType, String location, String status) {
         this.id = id;
@@ -75,5 +83,13 @@ public class Device {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<Device> getConnectedDevices() {
+        return connectedDevices;
+    }
+
+    public void setConnectedDevices(List<Device> connectedDevices) {
+        this.connectedDevices = connectedDevices;
     }
 }

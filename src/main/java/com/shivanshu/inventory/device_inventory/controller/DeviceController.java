@@ -4,6 +4,9 @@ import com.shivanshu.inventory.device_inventory.model.Device;
 import com.shivanshu.inventory.device_inventory.service.DeviceService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,6 +51,23 @@ public class DeviceController {
     @GetMapping("/location/{location}")
     public List<Device> getDeviceByLocation(@PathVariable String location) {
         return deviceService.getDevicesByLocation(location);
+    }
+    @PostMapping("{id1}/connect/{id2}")
+    public Device connectDevices(@PathVariable Long id1, @PathVariable Long id2) {
+        return deviceService.connectDevices(id1, id2);
+    }
+    @DeleteMapping("{id1}/disconnect/{id2}")
+    public Device disconnectDevices(@PathVariable Long id1, @PathVariable Long id2) {
+        return deviceService.disconnectDevices(id1,id2);
+    }
+
+    //I can directly combine it with getAllDevice method instead of creating new endpoint
+    //but for testing purpose I created a new endpoint and new method in service layer
+    // where whenever asked only then data is being fetched in page wise manner
+    @GetMapping("/paged")
+    //with pageabledefault annotation, i can set the default no of device on one page
+    public Page<Device> getDevices(@PageableDefault(size=2) Pageable pageable) {
+        return deviceService.getDevices(pageable);
     }
 
 }
